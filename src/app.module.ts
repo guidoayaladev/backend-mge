@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserEntity } from './entities/user.entity';
 import { AdminModule } from './modules/admin/admin.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
+import { ProjectsModule } from './modules/projects/projects.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module';
     JwtModule.register({}),
     AdminModule,
     VehiclesModule,
+    ProjectsModule,
   ],
   providers: [],
 })
