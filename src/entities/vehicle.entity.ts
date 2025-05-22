@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { Transfer } from './transfer.entity';
+import { Project } from './project.entity';
 
 @Entity('vehicles')
 export class Vehicle {
@@ -23,4 +25,7 @@ export class Vehicle {
 
   @OneToMany(() => Transfer, (transfer) => transfer.vehicle)
   transfers: Transfer[];
+
+  @ManyToOne(() => Project, { eager: true })
+  project: Project;
 }

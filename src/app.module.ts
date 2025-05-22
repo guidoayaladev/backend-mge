@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { UserEntity } from './entities/user.entity';
 import { AdminModule } from './modules/admin/admin.module';
+import { VehiclesModule } from './modules/vehicles/vehicles.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AdminModule } from './modules/admin/admin.module';
     TypeOrmModule.forFeature([UserEntity]),
     JwtModule.register({}),
     AdminModule,
+    VehiclesModule,
   ],
   providers: [],
 })
