@@ -21,18 +21,17 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.userRepository.findOne({
       where: { email: dto.email },
-      relations: ['projects', 'roles', 'organizationalUnits'],
+      relations: ['roles', 'permissions', 'projects', 'organizationalUnits'],
     });
 
     if (!user) {
-      throw new NotFoundException('El usuario no existe');
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
     const passwordMatch = await bcrypt.compare(
       dto.password,
       user.password_hash,
     );
-
     if (!passwordMatch) {
       throw new UnauthorizedException('Credenciales incorrectas');
     }

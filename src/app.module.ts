@@ -1,10 +1,25 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { GlobalConfigModule } from './config/config.module';
 import { TypeOrmConfigModule } from './config/typeorm.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TransfersModule } from './modules/transfers/transfers.module';
+import { SessionMiddleware } from './shared/middleware/session.middleware';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { UserEntity } from './entities/user.entity';
 
 @Module({
-  imports: [GlobalConfigModule, TypeOrmConfigModule, AuthModule, TransfersModule],
+  imports: [
+    GlobalConfigModule,
+    TypeOrmConfigModule,
+    AuthModule,
+    TransfersModule,
+    TypeOrmModule.forFeature([UserEntity]),
+    JwtModule.register({}),
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SessionMiddleware).forRoutes('*');
+  }
+}
