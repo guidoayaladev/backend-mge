@@ -1,3 +1,4 @@
+// src/shared/middleware/session.middleware.ts
 import {
   Injectable,
   NestMiddleware,
@@ -18,40 +19,36 @@ export class SessionMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const authHeader = req.headers.authorization;
+    const authHeader = req.headers.authorization || req.cookies?.access_token;
+    const token = authHeader?.replace('Bearer ', '');
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return next();
-    }
+    if (!token) return next();
 
-    const token = authHeader.replace('Bearer ', '');
-
-    let decoded: any;
     try {
-      decoded = this.jwtService.verify(token);
-    } catch (err) {
-      throw new UnauthorizedException('Token inválido o expirado');
-    }
+      const decoded = this.jwtService.verify(token);
+      const user = await this.userRepository.findOne({
+        where: { id: decoded.sub },
+        relations: [
+          'roles',
+          'roles.permissions',
+          'projects',
+          'organizationalUnits',
+        ],
+      });
 
-    const user = await this.userRepository.findOne({
-      where: { id: decoded.sub },
-      relations: ['roles', 'projects', 'organizationalUnits'],
-    });
+      if (!user) throw new UnauthorizedException('Usuario no encontrado');
 
-    if (!user) {
-      throw new UnauthorizedException('Usuario no encontrado');
-    }
-
-    req.user = {
-      id: user.id,
-      email: user.email,
-      roles: user.roles.map((r) => r.name),
-      projectIds: user.projects.map((p) => p.id),
-      unitIds: user.organizationalUnits.map((u) => u.id),
-      permissions: user.roles.flatMap(
-        (r) => r.permissions?.map((p) => p.name) || [],
-      ),
-    };
+      req.user = {
+        id: user.id,
+        email: user.email,
+        roles: user.roles.map((r) => r.name),
+        permissions: user.roles.flatMap(
+          (r) => r.permissions?.map((p) => p.name) || [],
+        ),
+        projectIds: user.projects.map((p) => p.id),
+        unitIds: user.organizationalUnits.map((u) => u.id),
+      };
+    } catch {}
 
     next();
   }

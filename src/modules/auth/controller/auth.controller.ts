@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Res, UseGuards, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  UseGuards,
+  Get,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { LoginDto } from '../dtos/login.dto';
 import { Response } from 'express';
@@ -30,14 +38,11 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   me(@User() user: AuthenticatedUser) {
-    return {
-      id: user.id,
-      email: user.email,
-      roles: user.roles,
-      permissions: user.permissions,
-      projectIds: user.projectIds,
-      unitIds: user.unitIds,
-    };
+    if (!user) {
+      throw new UnauthorizedException('No hay sesión activa');
+    }
+
+    return user;
   }
 
   @Post('logout')

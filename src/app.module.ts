@@ -17,6 +17,7 @@ import { UserEntity } from './entities/user.entity';
     TypeOrmModule.forFeature([UserEntity]),
     JwtModule.register({}),
   ],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
