@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
-import { LoggerInterceptor } from './shared/interceptors/logger.interceptor'; // 👈 Asegúrate que exista esta ruta
+import { LoggerInterceptor } from './shared/interceptors/logger.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

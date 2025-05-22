@@ -7,6 +7,7 @@ import { SessionMiddleware } from './shared/middleware/session.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { UserEntity } from './entities/user.entity';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserEntity } from './entities/user.entity';
     TransfersModule,
     TypeOrmModule.forFeature([UserEntity]),
     JwtModule.register({}),
+    AdminModule,
   ],
   providers: [],
 })
