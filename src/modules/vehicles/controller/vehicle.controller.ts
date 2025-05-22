@@ -14,7 +14,7 @@ import { PermissionsGuard } from 'src/shared/guards/permissions.guard';
 import { Permissions } from 'src/shared/decorators/permission.decorator';
 import { CreateVehicleDto } from '../dtos/create-vehicle.dto';
 import { UpdateVehicleDto } from '../dtos/update-vehicle.dto';
-import { User } from 'src/shared/decorators/user.decorator'; // 👈
+import { User } from 'src/shared/decorators/user.decorator';
 
 @Controller('vehicles')
 @UseGuards(JwtAuthGuard, PermissionsGuard)

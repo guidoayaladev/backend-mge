@@ -1,4 +1,3 @@
-// src/shared/middleware/session.middleware.ts
 import {
   Injectable,
   NestMiddleware,
