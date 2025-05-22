@@ -20,6 +20,9 @@ import { Transfer } from '../entities/transfer.entity';
         synchronize: false,
         autoLoadEntities: true,
         logging: false,
+        ssl: {
+          rejectUnauthorized: false,
+        },
         entities: [
           UserEntity,
           Role,
