@@ -10,6 +10,7 @@ import { UserEntity } from './entities/user.entity';
 import { AdminModule } from './modules/admin/admin.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { OrganizationalUnitsModule } from './modules/organizational-units/organizational-units.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
     AdminModule,
     VehiclesModule,
     ProjectsModule,
+    OrganizationalUnitsModule,
   ],
   providers: [],
 })
