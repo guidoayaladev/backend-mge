@@ -4,26 +4,24 @@ import { DataSource } from 'typeorm';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
+import { LoggerInterceptor } from './shared/interceptors/logger.interceptor'; // 👈 Asegúrate que exista esta ruta
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // 🧠 Inicialización base de datos
+  const logger = new Logger('Bootstrap');
   const dataSource = app.get(DataSource);
   if (dataSource.isInitialized) {
-    console.log('✅ Conexión a la base de datos establecida');
+    logger.log('✅ Conexión a la base de datos establecida');
   } else {
-    console.error('❌ Error: La conexión a la base de datos no se inicializó');
+    logger.error('❌ Error: La conexión a la base de datos no se inicializó');
     process.exit(1);
   }
 
-  // 🛡️ Seguridad global
   app.use(
     helmet({ crossOriginEmbedderPolicy: false, contentSecurityPolicy: false }),
   );
   app.use(cookieParser());
 
-  // 🌐 Validaciones globales
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -32,7 +30,8 @@ async function bootstrap() {
     }),
   );
 
-  // 🔐 CORS dinámico
+  app.useGlobalInterceptors(new LoggerInterceptor());
+
   const origin = process.env.CORS_ORIGIN ?? '*';
   app.enableCors({
     origin,
@@ -41,9 +40,8 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // 🚀 Inicio del servidor
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  console.log(`🚀 App escuchando en http://localhost:${port}`);
+  logger.log(`🚀 App escuchando en http://localhost:${port}`);
 }
 bootstrap();

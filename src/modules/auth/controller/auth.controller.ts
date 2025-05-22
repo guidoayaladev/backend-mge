@@ -1,8 +1,10 @@
-import { Controller, Post, Body, Res, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Res, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { LoginDto } from '../dtos/login.dto';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/shared/guards/jwt-auth.guard';
+import { AuthenticatedUser } from 'src/shared/types/authenticated-user.interface';
+import { User } from 'src/shared/decorators/user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +25,19 @@ export class AuthController {
     });
 
     return { message: 'Autenticación exitosa' };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  me(@User() user: AuthenticatedUser) {
+    return {
+      id: user.id,
+      email: user.email,
+      roles: user.roles,
+      permissions: user.permissions,
+      projectIds: user.projectIds,
+      unitIds: user.unitIds,
+    };
   }
 
   @Post('logout')
