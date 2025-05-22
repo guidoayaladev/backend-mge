@@ -8,6 +8,9 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   synchronize: false,
   logging: false,
+  ssl: {
+    rejectUnauthorized: false,
+  },
   entities: [
     join(__dirname, '..', '..', 'src', 'entities', '*.entity.{ts,js}'),
   ],
