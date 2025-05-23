@@ -81,7 +81,8 @@ Utiliza la colección Postman incluida. Contiene:
 - CRUD de proyectos, unidades, vehículos y transferencias
 - Asignación de usuarios a proyectos/unidades
 
-📥 [Descargar colección Postman - CMS Vehicular](sandbox:/mnt/data/CMSVehicular-MGE.postman_collection.json)
+📥 [Descargar colección Postman - CMS Vehicular](https://github.com/guidoayaladev/backend-mge/blob/dev/CMSVehicular-MGE.postman_collection.json)
+
 
 ## 🌎 Despliegue
 
