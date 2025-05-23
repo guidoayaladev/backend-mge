@@ -3,14 +3,15 @@ import { join } from 'path';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
+
+const dbUrl = process.env.DATABASE_URL ?? '';
+const isExternal = !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1');
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: process.env.DATABASE_URL,
+  url: dbUrl,
   synchronize: false,
-  logging: false,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ...(isExternal ? { ssl: { rejectUnauthorized: false } } : {}),
   entities: [
     join(__dirname, '..', '..', 'src', 'entities', '*.entity.{ts,js}'),
   ],

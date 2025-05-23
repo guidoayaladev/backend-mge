@@ -14,26 +14,30 @@ import { Transfer } from '../entities/transfer.entity';
   imports: [
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        url: config.get<string>('DATABASE_URL'),
-        synchronize: false,
-        autoLoadEntities: true,
-        logging: false,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-        entities: [
-          UserEntity,
-          Role,
-          Permission,
-          Project,
-          OrganizationalUnit,
-          Vehicle,
-          Transfer,
-        ],
-        migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
-      }),
+      useFactory: (config: ConfigService) => {
+        const dbUrl = config.get<string>('DATABASE_URL') ?? '';
+        const isExternal =
+          !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1');
+
+        return {
+          type: 'postgres',
+          url: dbUrl,
+          synchronize: false,
+          autoLoadEntities: true,
+          logging: false,
+          ...(isExternal ? { ssl: { rejectUnauthorized: false } } : {}),
+          entities: [
+            UserEntity,
+            Role,
+            Permission,
+            Project,
+            OrganizationalUnit,
+            Vehicle,
+            Transfer,
+          ],
+          migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
+        };
+      },
     }),
   ],
 })
