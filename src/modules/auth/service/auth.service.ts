@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,9 +10,12 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from 'src/entities/user.entity';
 import { LoginDto } from '../dtos/login.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly jwtService: JwtService,
     @InjectRepository(UserEntity)
@@ -52,5 +56,15 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async keepAlive() {
+    try {
+      const count = await this.userRepository.count();
+      this.logger.log(`👥 Usuarios registrados: ${count}`);
+    } catch (error) {
+      this.logger.error('❌ Error en keepalive cron', error);
+    }
   }
 }
