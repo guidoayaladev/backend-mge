@@ -93,7 +93,10 @@ export class TransferService {
         this.userRepo.findOneBy({ id: dto.client_id }),
         this.userRepo.findOneBy({ id: dto.transmitter_id }),
         this.projectRepo.findOneBy({ id: dto.project_id }),
-        this.unitRepo.findOneBy({ id: dto.organizational_unit_id }),
+        this.unitRepo.findOne({
+          where: { id: dto.organizational_unit_id },
+          relations: ['project'],
+        }),
       ]);
 
     if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
@@ -102,6 +105,13 @@ export class TransferService {
     if (!project) throw new NotFoundException('Proyecto no encontrado');
     if (!organizationalUnit)
       throw new NotFoundException('Unidad organizativa no encontrada');
+
+    // ❗ Validar que la unidad pertenezca al proyecto
+    if (organizationalUnit.project.id !== project.id) {
+      throw new ForbiddenException(
+        'La unidad organizativa no pertenece al proyecto especificado',
+      );
+    }
 
     return { vehicle, client, transmitter, project, organizationalUnit };
   }

@@ -84,4 +84,47 @@ export class ProjectService {
 
     return this.projectRepo.remove(project);
   }
+
+  async linkUserToProject(
+    projectId: string,
+    targetUserId: string,
+    currentUser: AuthenticatedUser,
+  ) {
+    const project = await this.projectRepo.findOne({
+      where: { id: projectId },
+    });
+    if (!project) {
+      throw new NotFoundException('Proyecto no encontrado');
+    }
+    if (
+      !currentUser.projectIds.includes(projectId) ||
+      !currentUser.permissions.includes('create_projects')
+    ) {
+      throw new ForbiddenException(
+        'No tienes permisos para asignar usuarios a este proyecto',
+      );
+    }
+
+    const userToAdd = await this.userRepo.findOne({
+      where: { id: targetUserId },
+      relations: ['projects'],
+    });
+
+    if (!userToAdd) {
+      throw new NotFoundException('Usuario destino no encontrado');
+    }
+
+    const alreadyAssigned = userToAdd.projects.some((p) => p.id === projectId);
+
+    if (alreadyAssigned) {
+      throw new BadRequestException(
+        'El usuario ya está asignado a este proyecto',
+      );
+    }
+
+    userToAdd.projects.push(project);
+    await this.userRepo.save(userToAdd);
+
+    return { message: 'Usuario asignado al proyecto correctamente' };
+  }
 }
