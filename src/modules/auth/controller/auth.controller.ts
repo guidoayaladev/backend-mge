@@ -24,25 +24,32 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const token = await this.authService.login(dto);
-
     res.cookie('access_token', token.access_token, {
       httpOnly: true,
-      secure: process.env.STAGE === 'prod',
-      sameSite: 'strict',
+      secure: process.env.STAGE !== 'dev',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 6, // 6 horas
     });
 
-    return { message: 'Autenticación exitosa' };
+    return { message: 'Autenticación exitosa', user: token.user };
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
   me(@User() user: AuthenticatedUser) {
+    console.log(user);
     if (!user) {
       throw new UnauthorizedException('No hay sesión activa');
     }
 
-    return user;
+    return {
+      id: user.id,
+      email: user.email,
+      roles: user.roles,
+      permissions: user.permissions,
+      projectIds: user.projectIds,
+      unitIds: user.unitIds,
+    };
   }
 
   @Post('logout')
