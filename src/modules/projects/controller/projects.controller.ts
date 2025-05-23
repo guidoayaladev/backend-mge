@@ -49,4 +49,13 @@ export class ProjectController {
   remove(@Param('id') id: string, @User() user: AuthenticatedUser) {
     return this.service.remove(id, user);
   }
+
+  @Post(':projectId/users/:userId')
+  addUserToProject(
+    @Param('projectId') projectId: string,
+    @Param('userId') userId: string,
+    @User() currentUser: AuthenticatedUser,
+  ) {
+    return this.service.linkUserToProject(userId, projectId, currentUser);
+  }
 }

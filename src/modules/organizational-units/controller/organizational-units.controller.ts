@@ -52,4 +52,14 @@ export class OrganizationalUnitController {
   remove(@Param('id') id: string, @User() user: AuthenticatedUser) {
     return this.service.remove(id, user);
   }
+
+  @Post(':unitId/users/:userId')
+  @Permissions('create_units')
+  addUserToUnit(
+    @Param('unitId') unitId: string,
+    @Param('userId') userId: string,
+    @User() currentUser: AuthenticatedUser,
+  ) {
+    return this.service.linkUserToUnit(unitId, userId, currentUser);
+  }
 }

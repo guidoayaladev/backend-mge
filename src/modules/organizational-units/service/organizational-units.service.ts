@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrganizationalUnit } from 'src/entities/organizational-unit.entity';
@@ -10,6 +11,7 @@ import { CreateOrganizationalUnitDto } from '../dto/create-organizational-unit.d
 import { UpdateOrganizationalUnitDto } from '../dto/update-organizational-unit.dto';
 import { Project } from 'src/entities/project.entity';
 import { AuthenticatedUser } from 'src/shared/types/authenticated-user.interface';
+import { UserEntity } from 'src/entities/user.entity';
 
 @Injectable()
 export class OrganizationalUnitService {
@@ -18,6 +20,8 @@ export class OrganizationalUnitService {
     private readonly unitRepo: Repository<OrganizationalUnit>,
     @InjectRepository(Project)
     private readonly projectRepo: Repository<Project>,
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
   ) {}
 
   async findAll(user: AuthenticatedUser) {
@@ -76,5 +80,46 @@ export class OrganizationalUnitService {
     }
 
     return this.unitRepo.remove(unit);
+  }
+
+  async linkUserToUnit(
+    unitId: string,
+    targetUserId: string,
+    currentUser: AuthenticatedUser,
+  ) {
+    const unit = await this.unitRepo.findOne({
+      where: { id: unitId },
+      relations: ['project'],
+    });
+    if (!unit) throw new NotFoundException('Unidad organizativa no encontrada');
+
+    if (
+      !currentUser.projectIds.includes(unit.project.id) ||
+      !currentUser.permissions.includes('create_units')
+    ) {
+      throw new ForbiddenException(
+        'No tienes permisos para asignar usuarios a esta unidad organizativa',
+      );
+    }
+
+    const user = await this.userRepo.findOne({
+      where: { id: targetUserId },
+      relations: ['organizationalUnits'],
+    });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    const alreadyAssigned = user.organizationalUnits.some(
+      (u) => u.id === unitId,
+    );
+    if (alreadyAssigned) {
+      throw new BadRequestException(
+        'El usuario ya está asignado a esta unidad',
+      );
+    }
+
+    user.organizationalUnits.push(unit);
+    await this.userRepo.save(user);
+
+    return { message: 'Usuario asignado correctamente a la unidad' };
   }
 }
