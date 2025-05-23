@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from 'src/entities/user.entity';
 import { LoginDto } from '../dtos/login.dto';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class AuthService {
@@ -58,13 +58,13 @@ export class AuthService {
     };
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron('* * * * *')
   async keepAlive() {
     try {
-      const count = await this.userRepository.count();
-      this.logger.log(`👥 Usuarios registrados: ${count}`);
-    } catch (error) {
-      this.logger.error('❌ Error en keepalive cron', error);
+      await fetch('https://backend-mge.onrender.com/ping');
+      this.logger.log('✅ Ping interno enviado');
+    } catch (err) {
+      this.logger.error('❌ Error en ping interno', err);
     }
   }
 }
