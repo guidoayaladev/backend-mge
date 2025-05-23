@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AuthController } from './controller/auth.controller';
 import { AuthService } from './service/auth.service';
@@ -14,6 +15,7 @@ import { UserEntity } from 'src/entities/user.entity';
   imports: [
     ConfigModule,
     PassportModule,
+    ScheduleModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
