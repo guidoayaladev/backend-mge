@@ -54,7 +54,9 @@ export class AuthService {
     };
 
     return {
+      message: 'Autenticación exitosa',
       access_token: this.jwtService.sign(payload),
+      user,
     };
   }
 
